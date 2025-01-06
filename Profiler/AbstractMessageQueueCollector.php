@@ -59,6 +59,8 @@ abstract class AbstractMessageQueueCollector extends DataCollector
     }
 
     /**
+     * @param mixed $body
+     *
      * @return string
      */
     public function ensureString($body)
@@ -66,12 +68,18 @@ abstract class AbstractMessageQueueCollector extends DataCollector
         return is_string($body) ? $body : JSON::encode($body);
     }
 
-    public function getName(): string
+    /**
+     * {@inheritdoc}
+     */
+    public function getName()
     {
         return 'enqueue.message_queue';
     }
 
-    public function reset(): void
+    /**
+     * {@inheritdoc}
+     */
+    public function reset()
     {
         $this->data = [];
     }

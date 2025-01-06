@@ -2,15 +2,36 @@
 
 namespace Enqueue\Bundle\Tests\Functional\App;
 
-use Symfony\Contracts\EventDispatcher\Event;
+use Symfony\Component\EventDispatcher\Event;
+use Symfony\Contracts\EventDispatcher\Event as ContractEvent;
 
-class AsyncListener extends AbstractAsyncListener
-{
+if (class_exists(Event::class)) {
     /**
-     * @param string $eventName
+     * Symfony < 5.0.
      */
-    public function onEvent(Event $event, $eventName)
+    class AsyncListener extends AbstractAsyncListener
     {
-        $this->onEventInternal($event, $eventName);
+        /**
+         * @param Event|ContractEvent $event
+         * @param string              $eventName
+         */
+        public function onEvent($event, $eventName)
+        {
+            $this->onEventInternal($event, $eventName);
+        }
+    }
+} else {
+    /**
+     * Symfony >= 5.0.
+     */
+    class AsyncListener extends AbstractAsyncListener
+    {
+        /**
+         * @param string $eventName
+         */
+        public function onEvent(ContractEvent $event, $eventName)
+        {
+            $this->onEventInternal($event, $eventName);
+        }
     }
 }

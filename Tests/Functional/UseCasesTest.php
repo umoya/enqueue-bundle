@@ -11,13 +11,14 @@ use Interop\Queue\Exception\PurgeQueueNotSupportedException;
 use Interop\Queue\Message;
 use Interop\Queue\Queue;
 use Symfony\Component\Console\Tester\CommandTester;
+use Symfony\Component\Filesystem\Filesystem;
 
 /**
  * @group functional
  */
 class UseCasesTest extends WebTestCase
 {
-    private const RECEIVE_TIMEOUT = 500;
+    const RECEIVE_TIMEOUT = 500;
 
     protected function setUp(): void
     {
@@ -29,6 +30,12 @@ class UseCasesTest extends WebTestCase
     {
         if ($this->getContext()) {
             $this->getContext()->close();
+        }
+
+        if (static::$kernel) {
+            $fs = new Filesystem();
+            $fs->remove(static::$kernel->getLogDir());
+            $fs->remove(static::$kernel->getCacheDir());
         }
 
         parent::tearDown();
@@ -146,12 +153,12 @@ class UseCasesTest extends WebTestCase
             ],
         ]];
 
-        //
-        //        yield 'gps' => [[
-        //            'transport' => [
-        //                'dsn' => getenv('GPS_DSN'),
-        //            ],
-        //        ]];
+//
+//        yield 'gps' => [[
+//            'transport' => [
+//                'dsn' => getenv('GPS_DSN'),
+//            ],
+//        ]];
     }
 
     /**
@@ -353,7 +360,10 @@ class UseCasesTest extends WebTestCase
         $this->assertEquals($expectedBody, $processor->message->getBody());
     }
 
-    public static function getKernelClass(): string
+    /**
+     * @return string
+     */
+    public static function getKernelClass()
     {
         include_once __DIR__.'/App/CustomAppKernel.php';
 

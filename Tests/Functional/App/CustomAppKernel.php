@@ -7,7 +7,7 @@ use Symfony\Component\Config\Loader\LoaderInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpKernel\Kernel;
-use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
+use Symfony\Component\Routing\RouteCollectionBuilder;
 
 class CustomAppKernel extends Kernel
 {
@@ -27,7 +27,7 @@ class CustomAppKernel extends Kernel
         ],
     ];
 
-    public function setEnqueueConfig(array $config): void
+    public function setEnqueueConfig(array $config)
     {
         $this->enqueueConfig = array_replace_recursive($this->enqueueConfig, $config);
         $this->enqueueConfig['default']['client']['app_name'] = str_replace('.', '', uniqid('app_name', true));
@@ -38,7 +38,10 @@ class CustomAppKernel extends Kernel
         $fs->mkdir(sys_get_temp_dir().'/EnqueueBundleCustom/cache/'.$this->enqueueConfigId);
     }
 
-    public function registerBundles(): iterable
+    /**
+     * @return array
+     */
+    public function registerBundles()
     {
         $bundles = [
             new \Symfony\Bundle\FrameworkBundle\FrameworkBundle(),
@@ -49,33 +52,41 @@ class CustomAppKernel extends Kernel
         return $bundles;
     }
 
-    public function getCacheDir(): string
+    /**
+     * @return string
+     */
+    public function getCacheDir()
     {
         return sys_get_temp_dir().'/EnqueueBundleCustom/cache/'.$this->enqueueConfigId;
     }
 
-    public function getLogDir(): string
+    /**
+     * @return string
+     */
+    public function getLogDir()
     {
         return sys_get_temp_dir().'/EnqueueBundleCustom/cache/logs/'.$this->enqueueConfigId;
     }
 
-    protected function getContainerClass(): string
+    protected function getContainerClass()
     {
         return parent::getContainerClass().'Custom'.$this->enqueueConfigId;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     protected function configureContainer(ContainerBuilder $c, LoaderInterface $loader)
     {
-        if (self::VERSION_ID < 60000) {
-            $loader->load(__DIR__.'/config/custom-config-sf5.yml');
-        } else {
-            $loader->load(__DIR__.'/config/custom-config.yml');
-        }
+        $loader->load(__DIR__.'/config/custom-config.yml');
 
         $c->loadFromExtension('enqueue', $this->enqueueConfig);
     }
 
-    protected function configureRoutes(RoutingConfigurator $routes)
+    /**
+     * {@inheritdoc}
+     */
+    protected function configureRoutes(RouteCollectionBuilder $routes)
     {
     }
 }

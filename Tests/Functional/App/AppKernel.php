@@ -7,7 +7,10 @@ use Symfony\Component\HttpKernel\Kernel;
 
 class AppKernel extends Kernel
 {
-    public function registerBundles(): iterable
+    /**
+     * @return array
+     */
+    public function registerBundles()
     {
         $bundles = [
             new \Symfony\Bundle\FrameworkBundle\FrameworkBundle(),
@@ -18,28 +21,28 @@ class AppKernel extends Kernel
         return $bundles;
     }
 
-    public function getCacheDir(): string
+    /**
+     * @return string
+     */
+    public function getCacheDir()
     {
         return sys_get_temp_dir().'/EnqueueBundle/cache';
     }
 
-    public function getLogDir(): string
+    /**
+     * @return string
+     */
+    public function getLogDir()
     {
         return sys_get_temp_dir().'/EnqueueBundle/cache/logs';
     }
 
     public function registerContainerConfiguration(LoaderInterface $loader)
     {
-        if (self::VERSION_ID < 60000) {
-            $loader->load(__DIR__.'/config/config-sf5.yml');
-
-            return;
-        }
-
         $loader->load(__DIR__.'/config/config.yml');
     }
 
-    protected function getContainerClass(): string
+    protected function getContainerClass()
     {
         return parent::getContainerClass().'BundleDefault';
     }

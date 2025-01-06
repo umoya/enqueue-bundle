@@ -4,7 +4,7 @@ namespace Enqueue\Bundle\Tests\Unit\Consumption\Extension;
 
 use Doctrine\Persistence\ManagerRegistry;
 use Enqueue\Bundle\Consumption\Extension\ResetServicesExtension;
-use Enqueue\Consumption\Context\PostMessageReceived;
+use Enqueue\Consumption\Context\MessageReceived;
 use Interop\Queue\Consumer;
 use Interop\Queue\Context as InteropContext;
 use Interop\Queue\Message;
@@ -37,12 +37,12 @@ class ResetServicesExtensionTest extends TestCase
         ;
 
         $extension = new ResetServicesExtension($resetter);
-        $extension->onPostMessageReceived($context);
+        $extension->onMessageReceived($context);
     }
 
-    protected function createContext(): PostMessageReceived
+    protected function createContext(): MessageReceived
     {
-        return new PostMessageReceived(
+        return new MessageReceived(
             $this->createMock(InteropContext::class),
             $this->createMock(Consumer::class),
             $this->createMock(Message::class),

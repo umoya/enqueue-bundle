@@ -3,17 +3,16 @@
 namespace Enqueue\Bundle\Tests\Unit\Consumption\Extension;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\Persistence\ManagerRegistry;
 use Enqueue\Bundle\Consumption\Extension\DoctrinePingConnectionExtension;
 use Enqueue\Consumption\Context\MessageReceived;
-use Enqueue\Test\TestLogger;
 use Interop\Queue\Consumer;
 use Interop\Queue\Context as InteropContext;
 use Interop\Queue\Message;
 use Interop\Queue\Processor;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\Test\TestLogger;
 
 class DoctrinePingConnectionExtensionTest extends TestCase
 {
@@ -30,17 +29,10 @@ class DoctrinePingConnectionExtensionTest extends TestCase
             ->method('isConnected')
             ->willReturn(true)
         ;
-
-        $abstractPlatform = $this->createMock(AbstractPlatform::class);
-        $abstractPlatform->expects($this->once())
-            ->method('getDummySelectSQL')
-            ->willReturn('dummy')
-        ;
-
         $connection
             ->expects($this->once())
-            ->method('getDatabasePlatform')
-            ->willReturn($abstractPlatform)
+            ->method('ping')
+            ->willReturn(true)
         ;
         $connection
             ->expects($this->never())
@@ -76,11 +68,10 @@ class DoctrinePingConnectionExtensionTest extends TestCase
             ->method('isConnected')
             ->willReturn(true)
         ;
-
         $connection
             ->expects($this->once())
-            ->method('getDatabasePlatform')
-            ->willThrowException(new \Exception())
+            ->method('ping')
+            ->willReturn(false)
         ;
         $connection
             ->expects($this->once())
@@ -127,7 +118,7 @@ class DoctrinePingConnectionExtensionTest extends TestCase
         ;
         $connection1
             ->expects($this->never())
-            ->method('getDatabasePlatform')
+            ->method('ping')
         ;
 
         // 2nd connection was opened in the past
@@ -137,16 +128,10 @@ class DoctrinePingConnectionExtensionTest extends TestCase
             ->method('isConnected')
             ->willReturn(true)
         ;
-        $abstractPlatform = $this->createMock(AbstractPlatform::class);
-        $abstractPlatform->expects($this->once())
-            ->method('getDummySelectSQL')
-            ->willReturn('dummy')
-        ;
-
         $connection2
             ->expects($this->once())
-            ->method('getDatabasePlatform')
-            ->willReturn($abstractPlatform)
+            ->method('ping')
+            ->willReturn(true)
         ;
 
         $context = $this->createContext();
